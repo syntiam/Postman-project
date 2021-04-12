@@ -10,5 +10,5 @@ before_script:
 - npm --version
 - node_modules/.bin/newman --version
 
-script:
-- node_modules/.bin/newman run tests/collection postman.json -d C:\Users\Utilisateur\Desktop\Postman-project\postmanProject\jsonFile
+script:C
+- node_modules/.bin/newman run tests/collection postman.json -d jsonFile
