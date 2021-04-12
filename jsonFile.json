@@ -1,0 +1,30 @@
+[
+    {
+        "keyWord": "tourisme",
+        "maxResults": 5
+        ,"saleCountry": "FR"
+           
+    },
+    {
+        "keyWord": "documents",
+        "maxResults": ""
+        ,"saleCountry": "UK"
+    },
+    {
+        
+        "keyWord": "flower",
+        "maxResults": 5
+        ,"saleCountry": "UK"
+    },
+    {
+        "keyWord": "tourisme",
+        "maxResults": 5
+        ,"saleCountry": "FR"
+          
+    },
+    {
+        "keyWord": "tourisme",
+        "maxResults": 
+        ,"saleCountry": "FR"
+    }
+]
