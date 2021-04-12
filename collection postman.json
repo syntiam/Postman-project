@@ -1,0 +1,230 @@
+{
+	"info": {
+		"_postman_id": "6029f223-7991-4554-8c14-29eb2d6a4a47",
+		"name": "google docs API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "list books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let keyWord = pm.iterationData.get('keyWord');\r",
+							"let maxResult = pm.iterationData.get('maxResults');\r",
+							"let saleCountrie = pm.iterationData.get('saleCountry');\r",
+							"\r",
+							"//test the response status\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"//retrieve ids iteratively\r",
+							"let response = pm.response.json();\r",
+							"//if (pm.response.code=== 200){\r",
+							"    \r",
+							"let items  = pm.response.json().items;\r",
+							"let ids = []\r",
+							"items.forEach(item => {\r",
+							"    ids.push(item.id)\r",
+							"});\r",
+							"\r",
+							"pm.collectionVariables.set('ids', ids)\r",
+							"\r",
+							"\r",
+							"\r",
+							"// Books are available for sale in France\r",
+							"let saleCountry = response.items[0].saleInfo.country;\r",
+							"if( saleCountry !=\"\"){\r",
+							"    pm.test('The book is available in : '+ saleCountry, function(){\r",
+							"       });\r",
+							"}else{\r",
+							"  pm.test('You cannot have acces to these books', function(){\r",
+							"       });\r",
+							"}\r",
+							"\r",
+							"// maxResults is defined to 5\r",
+							"let maxResults = pm.collectionVariables.get(\"maxResults\");\r",
+							"pm.test('the maxResult is equal to: '+ maxResults, function(){\r",
+							"    pm.expect(items.length).to.equal(parseInt(maxResults));\r",
+							" });\r",
+							"\r",
+							"//max result should be 10 when it is not precised\r",
+							"if(!maxResults){\r",
+							"pm.test(\"The default result\", function () { \r",
+							"        let dataLength = reponse.Similar.Results.length;\r",
+							"        console.log(\"the result is 10\");\r",
+							"    pm.expect(dataLength).to.equal(10);\r",
+							"    \r",
+							"});\r",
+							"}\r",
+							"\r",
+							"//Title contains Key word\r",
+							"let bookTitle = response.items[0].volumeInfo.title;\r",
+							"let q = pm.variables.get(\"keyWord\");\r",
+							"console.log(\"2\",response.items)\r",
+							"response.items.forEach(items =>{\r",
+							"    console.log(items.volumeInfo.title);\r",
+							"})\r",
+							"    pm.test('the title include the keyWord: ' + q, function () {\r",
+							"    pm.expect(bookTitle).to.include(\"tourisme\");\r",
+							"\r",
+							"});\r",
+							"\r",
+							"//The list of ids in Get book request have 5 items\r",
+							"pm.test(\"ids length should have 5 items\",function (){\r",
+							"    let maxResults = pm.collectionVariables.get(\"maxResults\");\r",
+							"    pm.expect(ids.length).to.equal(5)\r",
+							"});\r",
+							"console.log(ids.length);\r",
+							"\r",
+							"//ids is an array \r",
+							"pm.test(\" ids is an array\", function () {\r",
+							"    pm.expect(ids).to.be.an(\"array\")\r",
+							"})\r",
+							"\r",
+							"// test if selflink is an url\r",
+							"let selfLink = pm.response.json().items[0].selfLink\r",
+							"if(selfLink.startsWith('http')){\r",
+							"  pm.test('The selfLinkk is an URL', function(){\r",
+							"  });\r",
+							"  } else {\r",
+							"      pm.test('The selfLink is not an URL', function(){\r",
+							"  });\r",
+							"  }"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{googleBookUrl}}?q={{keyWord}}&maxResults={{maxResults}}",
+					"host": [
+						"{{googleBookUrl}}"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "{{keyWord}}"
+						},
+						{
+							"key": "maxResults",
+							"value": "{{maxResults}}"
+						}
+					]
+				},
+				"description": "Update the list of books \nGiven I set get book list Api endpoint,\nWhen I send the HTTP request,\nThen I should receive valid HTTP response code 200\n\nUpdate the list of without definig the country of Sale \nGiven I set get book list Api endpoint without specifying the country of Sale, \nWhen I send the get request,\nThen books should be displayed according to the localisation\n\nUpdate the list of books with max results\nGiven I set get book list Api endpoint with a max Result,\nWhen I send the get request,\nThen I should have the result spécified,\n\nUpdate the list of books with an undefined result \nGiven I set get book list Api endpoint with an undefined result,\nWhen I send the get request,\nThen I should get 10 results,\n\nupdate the list of books with a key Word\nGiven I set get books api endpoint with a key word \"tourisme\"\nWhen send the get request,\nThen I should have only books containing the key word in their title,\n\nIds length should have 5 items and it should be an array\nGiven I set get books api endpoint with volume Id parameter,\nWhen I send the get request,\nThen the list of ids should be an array and be similar to the max results"
+			},
+			"response": []
+		},
+		{
+			"name": "GET BOOK",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//retrieve ids iteratively \r",
+							"let ids = pm.collectionVariables.get('ids')\r",
+							"if(ids.length > 0) {\r",
+							"    postman.setNextRequest('GET BOOK')\r",
+							"}else{ postman.setNextRequest(null)\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"// test that the reponse contains an Id\r",
+							"pm.test(\"the response should have an id\", function () { \r",
+							"    pm.response.to.have.property('id');\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let ids = pm.collectionVariables.get('ids')\r",
+							"pm.variables.set('volumeId', ids[0])\r",
+							"ids.shift()\r",
+							"pm.collectionVariables.set('ids', ids)\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{googleBookUrl}}/{{volumeId}}",
+					"host": [
+						"{{googleBookUrl}}"
+					],
+					"path": [
+						"{{volumeId}}"
+					]
+				},
+				"description": "Get books with Ids\nGiven I set get books api endpoint with volume Id parameter,\nWhen I send the get request,\nThen I should have the books of the list book\n\n\nGet books with Ids\nGiven I set get books api endpoint with volume Id parameter,\nWhen I send the get request,\nThen Books should have the Id parameter"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "3adaa828-7d0f-42a8-bf44-e81fadd641c2",
+			"key": "googleBookUrl",
+			"value": "https://www.googleapis.com/books/v1/volumes"
+		},
+		{
+			"id": "7ed2836f-502f-42f5-8f98-2749269c6066",
+			"key": "maxResults",
+			"value": "5"
+		},
+		{
+			"id": "2cb896fb-8326-4eff-95e8-a48fb8e0fe80",
+			"key": "keyWord",
+			"value": "tourisme"
+		},
+		{
+			"id": "466ff2e7-f145-4572-b994-50ab7c94b1d5",
+			"key": "ids",
+			"value": ""
+		}
+	]
+}
